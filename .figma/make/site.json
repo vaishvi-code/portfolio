@@ -2,7 +2,7 @@
   "title": "vaishvi",
   "description": "Explore an immersive AI engineering portfolio that showcases live projects, workflows, and capabilities, inviting collaboration and innovation.",
   "robots": {
-    "index": false
+    "index": true
   },
   "accessibility": {
     "addBypassLinks": false,
