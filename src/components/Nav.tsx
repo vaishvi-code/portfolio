@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { PROFILE } from '../profile'
+import { triggerResumeDownload } from '../utils/resume'
 
 const NAV_ITEMS = [
   { id: 'hero', label: 'Home', icon: '✦' },
@@ -16,6 +17,13 @@ export default function Nav() {
   const [active, setActive] = useState('hero')
   const [isMobile, setIsMobile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [resumeDownloaded, setResumeDownloaded] = useState(false)
+
+  const handleResumeDownload = () => {
+    setResumeDownloaded(true)
+    triggerResumeDownload()
+    setTimeout(() => setResumeDownloaded(false), 3500)
+  }
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768)
@@ -249,9 +257,8 @@ export default function Nav() {
             </div>
 
             <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 10 }}>
-              <a
-                href={PROFILE.resume}
-                download="Vaishvi_Patel_Resume.pdf"
+              <button
+                onClick={handleResumeDownload}
                 style={{
                   flex: 1,
                   display: 'flex',
@@ -259,19 +266,30 @@ export default function Nav() {
                   justifyContent: 'center',
                   gap: 8,
                   padding: '12px',
-                  background: 'rgba(139,92,246,0.12)',
-                  border: '1px solid rgba(139,92,246,0.3)',
+                  background: resumeDownloaded ? 'rgba(16,185,129,0.15)' : 'rgba(139,92,246,0.12)',
+                  border: `1px solid ${resumeDownloaded ? 'rgba(16,185,129,0.5)' : 'rgba(139,92,246,0.3)'}`,
                   borderRadius: 12,
-                  color: '#c084fc',
+                  color: resumeDownloaded ? 'var(--signal-green)' : '#c084fc',
                   fontSize: 13,
                   fontWeight: 600,
-                  textDecoration: 'none',
                   fontFamily: 'JetBrains Mono, monospace',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s ease',
+                  boxShadow: resumeDownloaded ? '0 0 16px rgba(16,185,129,0.25)' : 'none',
                 }}
               >
-                <span>Résumé</span>
-                <span>↓</span>
-              </a>
+                {resumeDownloaded ? (
+                  <>
+                    <span style={{ fontSize: 14 }}>✓</span>
+                    <span>Downloaded</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Résumé</span>
+                    <span>↓</span>
+                  </>
+                )}
+              </button>
               <button
                 onClick={() => scrollTo('contact')}
                 style={{

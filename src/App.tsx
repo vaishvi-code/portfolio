@@ -7,6 +7,7 @@ import Projects from './components/Projects'
 import Skills from './components/Skills'
 import Laboratory from './components/Laboratory'
 import Contact from './components/Contact'
+import Toast from './components/Toast'
 import { PROFILE } from './profile'
 
 const LOADING_MESSAGES = [
@@ -164,6 +165,7 @@ export default function App() {
           <Laboratory />
           <Contact />
         </main>
+        <Toast />
       </div>
     </>
   )

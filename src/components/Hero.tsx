@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PROFILE } from '../profile'
+import { triggerResumeDownload } from '../utils/resume'
 
 const TAGLINES = [
   'Building useful AI, one iteration at a time.',
@@ -112,6 +113,13 @@ export default function Hero() {
   const tagline = useTypewriter(TAGLINES)
   const [visible, setVisible] = useState(false)
   const [screenType, setScreenType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop')
+  const [resumeDownloaded, setResumeDownloaded] = useState(false)
+
+  const handleResumeDownload = () => {
+    setResumeDownloaded(true)
+    triggerResumeDownload()
+    setTimeout(() => setResumeDownloaded(false), 3500)
+  }
 
   useEffect(() => {
     const updateScreen = () => {
@@ -291,34 +299,51 @@ export default function Hero() {
           >
             Get in Touch
           </button>
-          <a
-            href={PROFILE.resume}
-            download="Vaishvi_Patel_Resume.pdf"
+          <button
+            onClick={handleResumeDownload}
             style={{
               padding: '14px 28px',
-              background: 'transparent',
-              border: '1px solid rgba(139,92,246,0.3)',
+              background: resumeDownloaded ? 'rgba(16,185,129,0.15)' : 'transparent',
+              border: `1px solid ${resumeDownloaded ? 'rgba(16,185,129,0.5)' : 'rgba(139,92,246,0.3)'}`,
               borderRadius: 12,
-              color: '#a78bfa',
+              color: resumeDownloaded ? 'var(--signal-green)' : '#a78bfa',
               fontSize: 14,
               fontWeight: 500,
               letterSpacing: '0.04em',
-              textDecoration: 'none',
-              transition: 'all 0.2s ease',
+              transition: 'all 0.25s ease',
               cursor: 'pointer',
               textAlign: 'center',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              boxShadow: resumeDownloaded ? '0 0 24px rgba(16,185,129,0.25)' : 'none',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(167,139,250,0.65)'
-              e.currentTarget.style.background = 'rgba(139,92,246,0.08)'
+              if (!resumeDownloaded) {
+                e.currentTarget.style.borderColor = 'rgba(167,139,250,0.65)'
+                e.currentTarget.style.background = 'rgba(139,92,246,0.08)'
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(139,92,246,0.3)'
-              e.currentTarget.style.background = 'transparent'
+              if (!resumeDownloaded) {
+                e.currentTarget.style.borderColor = 'rgba(139,92,246,0.3)'
+                e.currentTarget.style.background = 'transparent'
+              }
             }}
           >
-            Download Résumé ↓
-          </a>
+            {resumeDownloaded ? (
+              <>
+                <span style={{ fontSize: 15, fontWeight: 700 }}>✓</span>
+                <span>Downloaded!</span>
+              </>
+            ) : (
+              <>
+                <span>Download Résumé</span>
+                <span>↓</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* System stats on mobile & tablet (in-flow) */}
