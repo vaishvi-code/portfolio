@@ -16,6 +16,7 @@ export default function Contact() {
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true) }, { threshold: 0.1 })
@@ -23,18 +24,43 @@ export default function Contact() {
     return () => obs.disconnect()
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !email || !message) return
     setSending(true)
-    const subject = encodeURIComponent(`Portfolio Contact from ${name}`)
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`)
-    const mailtoUrl = `mailto:${PROFILE.email}?subject=${subject}&body=${body}`
-    setTimeout(() => {
-      window.location.href = mailtoUrl
+    setErrorMsg('')
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: 'd0583b6f-293e-4325-b636-2fde1b037c55',
+          name: name,
+          email: email,
+          message: message,
+          from_name: name,
+          subject: `Portfolio message from ${name}`,
+        }),
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        setSent(true)
+        setName('')
+        setEmail('')
+        setMessage('')
+      } else {
+        setErrorMsg(data.message || 'Something went wrong. Please try again or email directly.')
+      }
+    } catch {
+      setErrorMsg('Failed to send message. Please check your internet or email directly.')
+    } finally {
       setSending(false)
-      setSent(true)
-    }, 800)
+    }
   }
 
   const inputStyle = {
@@ -123,14 +149,39 @@ export default function Contact() {
             {sent ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', padding: '40px 0' }}>
                 <div style={{ fontSize: 48, marginBottom: 20 }}>✓</div>
-                <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 700, color: 'var(--signal-green)', marginBottom: 12 }}>Message received.</div>
-                <div style={{ fontSize: 15, color: '#64748b' }}>I'll be in touch within 24 hours.</div>
+                <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 700, color: 'var(--signal-green)', marginBottom: 12 }}>Message received!</div>
+                <div style={{ fontSize: 15, color: '#64748b', marginBottom: 24 }}>Thanks for reaching out! I'll get back to you shortly.</div>
+                <button
+                  type="button"
+                  onClick={() => setSent(false)}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: 10,
+                    color: '#94a3b8',
+                    fontSize: 13,
+                    fontFamily: 'JetBrains Mono, monospace',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = '#f8fafc'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
+                >
+                  ← Send another message
+                </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
                 <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 28 }}>
                   Send a message
                 </div>
+
+                {errorMsg && (
+                  <div style={{ padding: '12px 16px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, color: '#f87171', fontSize: 13, marginBottom: 20 }}>
+                    {errorMsg}
+                  </div>
+                )}
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                   <div>
