@@ -1,6 +1,9 @@
 {
-  "title": "vaishvi",
-  "description": "Explore an immersive AI engineering portfolio that showcases live projects, workflows, and capabilities, inviting collaboration and innovation.",
+  "title": "Vaishvi Patel | AI Engineer Portfolio",
+  "description": "Live projects, workflows, and capabilities in AI engineering.",
+  "openGraph": {
+    "image": "https://vaishvipatel.vercel.app/preview.png"
+  },
   "robots": {
     "index": true
   },
