@@ -70,7 +70,7 @@ function LoadingScreen({ onComplete }: { onComplete: () => void }) {
       </div>
 
       {/* Progress */}
-      <div style={{ width: 320, height: 2, background: 'rgba(255,255,255,0.06)', borderRadius: 1, overflow: 'hidden' }}>
+      <div style={{ width: 'min(320px, calc(100vw - 64px))', height: 2, background: 'rgba(255,255,255,0.06)', borderRadius: 1, overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)', borderRadius: 1, transition: 'width 0.1s linear', boxShadow: '0 0 12px rgba(59,130,246,0.5)' }} />
       </div>
 
@@ -83,6 +83,7 @@ function LoadingScreen({ onComplete }: { onComplete: () => void }) {
 }
 
 function CustomCursor() {
+  const [enabled, setEnabled] = useState(false)
   const dotRef = useRef<HTMLDivElement>(null)
   const ringRef = useRef<HTMLDivElement>(null)
   const posRef = useRef({ x: 0, y: 0 })
@@ -91,6 +92,10 @@ function CustomCursor() {
   const [isHover, setIsHover] = useState(false)
 
   useEffect(() => {
+    const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (!isFinePointer) return
+    setEnabled(true)
+
     const onMove = (e: MouseEvent) => {
       posRef.current = { x: e.clientX, y: e.clientY }
       if (dotRef.current) {
@@ -124,6 +129,8 @@ function CustomCursor() {
       interactables.forEach((el) => { el.removeEventListener('mouseenter', onEnter); el.removeEventListener('mouseleave', onLeave) })
     }
   }, [])
+
+  if (!enabled) return null
 
   const base: React.CSSProperties = { position: 'fixed', pointerEvents: 'none', zIndex: 9999, transform: 'translate(-50%, -50%)' }
 

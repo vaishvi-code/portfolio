@@ -17,6 +17,19 @@ export default function Contact() {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkWidth = () => {
+      const w = window.innerWidth
+      setIsMobileOrTablet(w <= 960)
+      setIsMobile(w <= 640)
+    }
+    checkWidth()
+    window.addEventListener('resize', checkWidth)
+    return () => window.removeEventListener('resize', checkWidth)
+  }, [])
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true) }, { threshold: 0.1 })
@@ -65,7 +78,7 @@ export default function Contact() {
 
   const inputStyle = {
     width: '100%',
-    padding: '14px 18px',
+    padding: isMobile ? '12px 14px' : '14px 18px',
     background: 'rgba(255,255,255,0.03)',
     border: '1px solid rgba(255,255,255,0.08)',
     borderRadius: 12,
@@ -78,31 +91,38 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" ref={sectionRef} style={{ padding: '120px 6vw 160px', position: 'relative' }}>
+    <section id="contact" ref={sectionRef} style={{ padding: isMobile ? '80px 5vw 100px' : '120px 6vw 160px', position: 'relative' }}>
       {/* Final ambient glow */}
       <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 800, height: 400, background: 'radial-gradient(ellipse, rgba(59,130,246,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 80, opacity: visible ? 1 : 0, transition: 'opacity 0.7s ease' }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--signal-blue)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 24 }}>// room_08.contact</div>
-          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(40px, 5vw, 72px)', fontWeight: 800, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.05, marginBottom: 24 }}>
+        <div style={{ textAlign: 'center', marginBottom: isMobileOrTablet ? 48 : 80, opacity: visible ? 1 : 0, transition: 'opacity 0.7s ease' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--signal-blue)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 20 }}>// room_08.contact</div>
+          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(32px, 5vw, 72px)', fontWeight: 800, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.05, marginBottom: 20 }}>
             Let's build something<br />
             <span style={{ background: 'linear-gradient(135deg, #60a5fa, #a78bfa, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', backgroundSize: '200% auto', animation: 'gradient-shift 4s ease infinite' }}>
               meaningful together.
             </span>
           </h2>
-          <p style={{ fontSize: 18, color: '#64748b', maxWidth: 520, margin: '0 auto' }}>
+          <p style={{ fontSize: isMobile ? 15 : 18, color: '#64748b', maxWidth: 520, margin: '0 auto' }}>
             I'm looking for entry-level opportunities in AI engineering, data science, and applied LLM work.
             I'd love to connect with teams where I can contribute, learn, and grow.
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: 48, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(24px)', transition: 'all 0.7s 0.2s ease' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobileOrTablet ? '1fr' : '1fr 1.3fr',
+          gap: isMobile ? 32 : 48,
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'none' : 'translateY(24px)',
+          transition: 'all 0.7s 0.2s ease',
+        }}>
           {/* Left: channels */}
           <div>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24 }}>Channels</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 48 }}>
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 20 }}>Channels</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: isMobile ? 28 : 48 }}>
               {CHANNELS.map((ch) => (
                 <a
                   key={ch.label}
@@ -110,8 +130,8 @@ export default function Contact() {
                   target={ch.label === 'Email' || ch.label === 'Phone' ? '_self' : '_blank'}
                   rel="noopener noreferrer"
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 16,
-                    padding: '16px 20px',
+                    display: 'flex', alignItems: 'center', gap: 14,
+                    padding: isMobile ? '14px 16px' : '16px 20px',
                     background: 'rgba(255,255,255,0.025)',
                     border: '1px solid rgba(255,255,255,0.06)',
                     borderRadius: 12,
@@ -122,18 +142,18 @@ export default function Contact() {
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${ch.color}44`; e.currentTarget.style.background = `${ch.color}08` }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = 'rgba(255,255,255,0.025)' }}
                 >
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 18, color: ch.color }}>{ch.icon}</span>
-                  <div>
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 18, color: ch.color, flexShrink: 0 }}>{ch.icon}</span>
+                  <div style={{ minWidth: 0, overflow: 'hidden' }}>
                     <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.08em', marginBottom: 2 }}>{ch.label}</div>
-                    <div style={{ fontSize: 14, color: '#e2e8f0' }}>{ch.value}</div>
+                    <div style={{ fontSize: isMobile ? 13 : 14, color: '#e2e8f0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ch.value}</div>
                   </div>
-                  <span style={{ marginLeft: 'auto', fontSize: 12, color: ch.color, opacity: 0.6 }}>↗</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 12, color: ch.color, opacity: 0.6, flexShrink: 0 }}>↗</span>
                 </a>
               ))}
             </div>
 
             {/* Status */}
-            <div style={{ padding: '20px 24px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 16 }}>
+            <div style={{ padding: isMobile ? '16px 18px' : '20px 24px', background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--signal-green)', boxShadow: '0 0 8px rgba(16,185,129,0.8)', animation: 'pulse-dot 2s infinite' }} />
                 <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--signal-green)' }}>Available for opportunities</span>
@@ -145,7 +165,7 @@ export default function Contact() {
           </div>
 
           {/* Right: form */}
-          <div style={{ padding: '36px 40px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20 }}>
+          <div style={{ padding: isMobile ? '24px 18px' : '36px 40px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20 }}>
             {sent ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', padding: '40px 0' }}>
                 <div style={{ fontSize: 48, marginBottom: 20 }}>✓</div>
@@ -173,7 +193,7 @@ export default function Contact() {
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 28 }}>
+                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 24 }}>
                   Send a message
                 </div>
 
@@ -183,7 +203,7 @@ export default function Contact() {
                   </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginBottom: 16 }}>
                   <div>
                     <label style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.08em', display: 'block', marginBottom: 8 }}>NAME</label>
                     <input
@@ -228,7 +248,7 @@ export default function Contact() {
                   disabled={sending || !name || !email || !message}
                   style={{
                     width: '100%',
-                    padding: '16px',
+                    padding: isMobile ? '14px' : '16px',
                     background: sending ? 'rgba(59,130,246,0.3)' : 'linear-gradient(135deg, #3b82f6, #6366f1)',
                     border: 'none',
                     borderRadius: 12,
@@ -239,6 +259,7 @@ export default function Contact() {
                     transition: 'all 0.2s ease',
                     opacity: (!name || !email || !message) ? 0.5 : 1,
                     boxShadow: sending ? 'none' : '0 0 24px rgba(59,130,246,0.25)',
+                    cursor: (sending || !name || !email || !message) ? 'not-allowed' : 'pointer',
                   }}
                   onMouseEnter={(e) => { if (!sending) e.currentTarget.style.transform = 'translateY(-1px)' }}
                   onMouseLeave={(e) => { e.currentTarget.style.transform = 'none' }}
@@ -256,11 +277,11 @@ export default function Contact() {
         </div>
 
         {/* Footer */}
-        <div style={{ marginTop: 80, textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 40 }}>
-          <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, color: '#334155', marginBottom: 8 }}>
+        <div style={{ marginTop: isMobile ? 48 : 80, textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 32 }}>
+          <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, color: '#475569', marginBottom: 8 }}>
             {PROFILE.name} — AI Engineer & Data Scientist
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#1e293b' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#334155' }}>
             Built with precision · {new Date().getFullYear()}
           </div>
         </div>

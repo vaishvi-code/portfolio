@@ -45,6 +45,14 @@ const PRINCIPLES = [
 export default function About() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false)
+
+  useEffect(() => {
+    const checkWidth = () => setIsMobileOrTablet(window.innerWidth <= 960)
+    checkWidth()
+    window.addEventListener('resize', checkWidth)
+    return () => window.removeEventListener('resize', checkWidth)
+  }, [])
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true) }, { threshold: 0.1 })
@@ -53,35 +61,35 @@ export default function About() {
   }, [])
 
   return (
-    <section id="about" ref={sectionRef} style={{ padding: '120px 6vw', position: 'relative' }}>
+    <section id="about" ref={sectionRef} style={{ padding: isMobileOrTablet ? '80px 5vw' : '120px 6vw', position: 'relative' }}>
       {/* Ambient glow */}
       <div style={{ position: 'absolute', top: '30%', right: '5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: 80, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(24px)', transition: 'all 0.7s ease' }}>
+        <div style={{ marginBottom: isMobileOrTablet ? 48 : 80, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(24px)', transition: 'all 0.7s ease' }}>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--signal-blue)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 16 }}>
             // room_02.about
           </div>
-          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 700, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.1, marginBottom: 24 }}>
+          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(32px, 5vw, 64px)', fontWeight: 700, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.1, marginBottom: 20 }}>
             Curious by nature.<br />
             <span style={{ background: 'linear-gradient(135deg, #a78bfa, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               Practical by design.
             </span>
           </h2>
-          <p style={{ fontSize: 17, lineHeight: 1.7, color: '#64748b', maxWidth: 560 }}>
+          <p style={{ fontSize: isMobileOrTablet ? 15 : 17, lineHeight: 1.7, color: '#64748b', maxWidth: 560 }}>
             I'm a Computer Science master's student at NC State working across LLM systems, machine learning,
             data engineering, and full-stack development—with a focus on measurable, useful outcomes.
           </p>
         </div>
 
         {/* Grid: Principles + Timeline */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobileOrTablet ? '1fr' : '1fr 1fr', gap: isMobileOrTablet ? 48 : 64, alignItems: 'start' }}>
           {/* Principles */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateX(-24px)', transition: 'all 0.7s 0.2s ease' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateX(-24px)', transition: 'all 0.7s 0.2s ease' }}>
             {PRINCIPLES.map((p, i) => (
               <div key={i} style={{
-                padding: '28px 32px',
+                padding: isMobileOrTablet ? '22px 20px' : '28px 32px',
                 background: 'rgba(255,255,255,0.025)',
                 border: '1px solid rgba(255,255,255,0.06)',
                 borderRadius: 16,
@@ -105,7 +113,7 @@ export default function About() {
 
           {/* Timeline */}
           <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateX(24px)', transition: 'all 0.7s 0.3s ease' }}>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#475569', letterSpacing: '0.1em', marginBottom: 32, textTransform: 'uppercase' }}>
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#475569', letterSpacing: '0.1em', marginBottom: 28, textTransform: 'uppercase' }}>
               Experience
             </div>
             <div style={{ position: 'relative' }}>
@@ -113,7 +121,7 @@ export default function About() {
               <div style={{ position: 'absolute', left: 16, top: 8, bottom: 8, width: 1, background: 'linear-gradient(to bottom, rgba(59,130,246,0.4), rgba(139,92,246,0.2), transparent)' }} />
 
               {TIMELINE.map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: 24, marginBottom: 40, position: 'relative' }}>
+                <div key={i} style={{ display: 'flex', gap: isMobileOrTablet ? 16 : 24, marginBottom: 36, position: 'relative' }}>
                   {/* Dot */}
                   <div style={{ flexShrink: 0, width: 33, display: 'flex', justifyContent: 'center', paddingTop: 4 }}>
                     <div style={{ width: 10, height: 10, borderRadius: '50%', background: item.color, boxShadow: `0 0 12px ${item.color}`, flexShrink: 0 }} />

@@ -75,8 +75,31 @@ function SkillBar({ name, level, color, animate }: { name: string; level: number
   )
 }
 
-function CapabilityRow({ label, value, color, animate, delay }: { label: string; value: number; color: string; animate: boolean; delay: number }) {
+function CapabilityRow({ label, value, color, animate, delay, isMobile }: { label: string; value: number; color: string; animate: boolean; delay: number; isMobile: boolean }) {
   const blocks = Math.round(value / 10)
+
+  if (isMobile) {
+    return (
+      <div style={{ marginBottom: 16, opacity: animate ? 1 : 0, transition: `opacity 0.5s ${delay}s ease` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 500, color: '#cbd5e1' }}>{label}</span>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color }}>{value}%</span>
+        </div>
+        <div style={{ display: 'flex', gap: 3, width: '100%' }}>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} style={{
+              flex: 1, height: 10, borderRadius: 2,
+              background: i < blocks ? color : 'rgba(255,255,255,0.06)',
+              opacity: i < blocks ? 1 - (i * 0.015) : 1,
+              transition: `background 0.1s ${delay + i * 0.06}s ease`,
+              boxShadow: i < blocks ? `0 0 6px ${color}50` : 'none',
+            }} />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20, opacity: animate ? 1 : 0, transition: `opacity 0.5s ${delay}s ease` }}>
       <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, fontWeight: 500, color: '#94a3b8', width: 180, flexShrink: 0 }}>{label}</span>
@@ -99,6 +122,19 @@ function CapabilityRow({ label, value, color, animate, delay }: { label: string;
 export default function Skills() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkWidth = () => {
+      const w = window.innerWidth
+      setIsMobileOrTablet(w <= 960)
+      setIsMobile(w <= 640)
+    }
+    checkWidth()
+    window.addEventListener('resize', checkWidth)
+    return () => window.removeEventListener('resize', checkWidth)
+  }, [])
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => {
@@ -109,14 +145,14 @@ export default function Skills() {
   }, [])
 
   return (
-    <section id="skills" ref={sectionRef} style={{ padding: '120px 6vw', position: 'relative', background: 'rgba(0,0,0,0.15)' }}>
+    <section id="skills" ref={sectionRef} style={{ padding: isMobile ? '80px 5vw' : '120px 6vw', position: 'relative', background: 'rgba(0,0,0,0.15)' }}>
       <div style={{ position: 'absolute', top: '40%', right: '5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(16,185,129,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: 72, opacity: visible ? 1 : 0, transition: 'opacity 0.7s ease' }}>
+        <div style={{ marginBottom: isMobileOrTablet ? 40 : 72, opacity: visible ? 1 : 0, transition: 'opacity 0.7s ease' }}>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--signal-green)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 16 }}>// room_05.capability_matrix</div>
-          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 700, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.1, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(32px, 4vw, 56px)', fontWeight: 700, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.1, marginBottom: 16 }}>
             Skills I use.<br />
             <span style={{ background: 'linear-gradient(135deg, #34d399, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               Areas I'm growing.
@@ -125,18 +161,33 @@ export default function Skills() {
         </div>
 
         {/* Capability matrix */}
-        <div style={{ padding: '40px 48px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, marginBottom: 48, opacity: visible ? 1 : 0, transition: 'opacity 0.7s 0.1s ease' }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 32 }}>Technical Focus Matrix</div>
+        <div style={{
+          padding: isMobile ? '20px 16px' : isMobileOrTablet ? '28px 24px' : '40px 48px',
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: 20,
+          marginBottom: isMobile ? 28 : 48,
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.7s 0.1s ease',
+        }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: isMobile ? 20 : 32 }}>Technical Focus Matrix</div>
           {CAPABILITY_MATRIX.map((c, i) => (
-            <CapabilityRow key={c.label} {...c} animate={visible} delay={0.1 + i * 0.08} />
+            <CapabilityRow key={c.label} {...c} animate={visible} delay={0.1 + i * 0.08} isMobile={isMobile} />
           ))}
         </div>
 
         {/* Skill categories grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(24px)', transition: 'all 0.7s 0.4s ease' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobileOrTablet ? '1fr' : 'repeat(2, 1fr)',
+          gap: isMobile ? 16 : 24,
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'none' : 'translateY(24px)',
+          transition: 'all 0.7s 0.4s ease',
+        }}>
           {SKILL_CATEGORIES.map((cat) => (
-            <div key={cat.category} style={{ padding: '28px 32px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+            <div key={cat.category} style={{ padding: isMobile ? '20px 18px' : '28px 32px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: cat.color, boxShadow: `0 0 10px ${cat.color}60` }} />
                 <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: 16, fontWeight: 600, color: '#e2e8f0' }}>{cat.category}</span>
               </div>

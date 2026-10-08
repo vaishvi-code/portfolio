@@ -43,6 +43,19 @@ export default function Laboratory() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkWidth = () => {
+      const w = window.innerWidth
+      setIsMobileOrTablet(w <= 960)
+      setIsMobile(w <= 640)
+    }
+    checkWidth()
+    window.addEventListener('resize', checkWidth)
+    return () => window.removeEventListener('resize', checkWidth)
+  }, [])
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true) }, { threshold: 0.05 })
@@ -50,40 +63,47 @@ export default function Laboratory() {
     return () => obs.disconnect()
   }, [])
 
-
   return (
-    <section id="laboratory" ref={sectionRef} style={{ padding: '120px 6vw', position: 'relative' }}>
+    <section id="laboratory" ref={sectionRef} style={{ padding: isMobile ? '80px 5vw' : '120px 6vw', position: 'relative' }}>
       <div style={{ position: 'absolute', bottom: '20%', left: '5%', width: 600, height: 400, background: 'radial-gradient(circle, rgba(6,182,212,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: 64, opacity: visible ? 1 : 0, transition: 'opacity 0.7s ease' }}>
+        <div style={{ marginBottom: isMobileOrTablet ? 40 : 64, opacity: visible ? 1 : 0, transition: 'opacity 0.7s ease' }}>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--signal-cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 16 }}>// room_06.ai_laboratory</div>
-          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 700, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.1, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(32px, 4vw, 56px)', fontWeight: 700, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.1, marginBottom: 16 }}>
             Research in progress.<br />
             <span style={{ background: 'linear-gradient(135deg, #22d3ee, #a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               Questions I'm exploring.
             </span>
           </h2>
-          <p style={{ fontSize: 16, color: '#64748b', maxWidth: 480 }}>
+          <p style={{ fontSize: isMobile ? 15 : 16, color: '#64748b', maxWidth: 480 }}>
             Graduate research and ongoing technical interests in efficient LLM serving and dependable generative AI. This work is presented as research experience, not as published papers.
           </p>
         </div>
 
         {/* Experiments grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(24px)', transition: 'all 0.7s 0.2s ease' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : isMobileOrTablet ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+          gap: isMobile ? 16 : 20,
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'none' : 'translateY(24px)',
+          transition: 'all 0.7s 0.2s ease',
+        }}>
           {EXPERIMENTS.map((exp) => (
             <div
               key={exp.id}
               onClick={() => setSelected(selected === exp.id ? null : exp.id)}
               style={{
-                padding: '24px',
+                padding: isMobile ? '20px 18px' : '24px',
                 background: selected === exp.id ? `rgba(${exp.accent.slice(1).match(/.{2}/g)!.map(h=>parseInt(h,16)).join(',')}, 0.08)` : 'rgba(255,255,255,0.025)',
                 border: `1px solid ${selected === exp.id ? exp.accent + '44' : 'rgba(255,255,255,0.06)'}`,
                 borderRadius: 16,
                 transition: 'all 0.3s ease',
                 position: 'relative',
                 overflow: 'hidden',
+                cursor: 'pointer',
               }}
               onMouseEnter={(e) => {
                 if (selected !== exp.id) {

@@ -98,13 +98,13 @@ const PROJECTS = [
   },
 ]
 
-function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: number }) {
+function ProjectCard({ project, index, isMobile }: { project: typeof PROJECTS[0]; index: number; isMobile: boolean }) {
   const [hovered, setHovered] = useState(false)
 
   return (
     <div
       style={{
-        padding: '32px',
+        padding: isMobile ? '22px 18px' : '32px',
         background: hovered ? `rgba(${project.accent.replace('#','').match(/.{2}/g)!.map(h=>parseInt(h,16)).join(',')}, 0.06)` : 'rgba(255,255,255,0.025)',
         border: `1px solid ${hovered ? project.accent + '44' : 'rgba(255,255,255,0.06)'}`,
         borderRadius: 20,
@@ -129,27 +129,27 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: n
       }} />
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 12 }}>
         <div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 24, color: project.accent, marginBottom: 8 }}>{project.icon}</div>
-          <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 24, fontWeight: 700, color: '#f1f5f9', letterSpacing: '-0.02em', marginBottom: 4 }}>{project.name}</h3>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: isMobile ? 20 : 24, color: project.accent, marginBottom: 6 }}>{project.icon}</div>
+          <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: isMobile ? 20 : 24, fontWeight: 700, color: '#f1f5f9', letterSpacing: '-0.02em', marginBottom: 4 }}>{project.name}</h3>
           <div style={{ fontSize: 13, color: '#64748b' }}>{project.tagline}</div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
           <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: project.statusColor, letterSpacing: '0.1em', padding: '3px 8px', background: `${project.statusColor}15`, border: `1px solid ${project.statusColor}30`, borderRadius: 20 }}>{project.status}</span>
           <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#334155' }}>{project.year}</span>
         </div>
       </div>
 
       {/* Description */}
-      <p style={{ fontSize: 14, lineHeight: 1.7, color: '#64748b', marginBottom: 24 }}>{project.desc}</p>
+      <p style={{ fontSize: 14, lineHeight: 1.7, color: '#64748b', marginBottom: 20 }}>{project.desc}</p>
 
       {/* Metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: isMobile ? 8 : 12, marginBottom: 20 }}>
         {project.metrics.map((m) => (
-          <div key={m.label} style={{ textAlign: 'center', padding: '12px 8px', background: 'rgba(0,0,0,0.2)', borderRadius: 10 }}>
-            <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 700, color: project.accent, marginBottom: 2 }}>{m.value}</div>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: '#475569', letterSpacing: '0.06em' }}>{m.label}</div>
+          <div key={m.label} style={{ textAlign: 'center', padding: isMobile ? '10px 4px' : '12px 8px', background: 'rgba(0,0,0,0.2)', borderRadius: 10 }}>
+            <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: isMobile ? 17 : 20, fontWeight: 700, color: project.accent, marginBottom: 2 }}>{m.value}</div>
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: '#475569', letterSpacing: '0.04em' }}>{m.label}</div>
           </div>
         ))}
       </div>
@@ -179,7 +179,7 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: n
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          marginTop: 24,
+          marginTop: 20,
           color: project.accent,
           fontFamily: 'JetBrains Mono, monospace',
           fontSize: 11,
@@ -197,6 +197,19 @@ function ProjectCard({ project, index }: { project: typeof PROJECTS[0]; index: n
 export default function Projects() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkWidth = () => {
+      const w = window.innerWidth
+      setIsMobileOrTablet(w <= 960)
+      setIsMobile(w <= 640)
+    }
+    checkWidth()
+    window.addEventListener('resize', checkWidth)
+    return () => window.removeEventListener('resize', checkWidth)
+  }, [])
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true) }, { threshold: 0.05 })
@@ -205,18 +218,18 @@ export default function Projects() {
   }, [])
 
   return (
-    <section id="projects" ref={sectionRef} style={{ padding: '120px 6vw', position: 'relative' }}>
+    <section id="projects" ref={sectionRef} style={{ padding: isMobile ? '80px 5vw' : '120px 6vw', position: 'relative' }}>
       <div style={{ position: 'absolute', top: '20%', left: '0', width: 400, height: 400, background: 'radial-gradient(circle, rgba(59,130,246,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 1400, margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: 64, opacity: visible ? 1 : 0, transition: 'opacity 0.7s ease' }}>
+        <div style={{ marginBottom: isMobileOrTablet ? 40 : 64, opacity: visible ? 1 : 0, transition: 'opacity 0.7s ease' }}>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--signal-blue)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 16 }}>// room_04.projects</div>
-          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 700, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.1, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(32px, 4vw, 56px)', fontWeight: 700, letterSpacing: '-0.03em', color: '#f8fafc', lineHeight: 1.1, marginBottom: 16 }}>
             Selected<br />
             <span style={{ background: 'linear-gradient(135deg, #fbbf24, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Project Work</span>
           </h2>
-          <p style={{ fontSize: 16, color: '#64748b', maxWidth: 480 }}>
+          <p style={{ fontSize: isMobile ? 15 : 16, color: '#64748b', maxWidth: 480 }}>
             End-to-end systems spanning real-time data engineering, natural language processing, computer vision, and collaborative product development.
           </p>
         </div>
@@ -224,13 +237,13 @@ export default function Projects() {
         {/* Project grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 24,
+          gridTemplateColumns: isMobileOrTablet ? '1fr' : 'repeat(2, 1fr)',
+          gap: isMobile ? 16 : 24,
           opacity: visible ? 1 : 0,
           transform: visible ? 'none' : 'translateY(32px)',
           transition: 'all 0.7s 0.2s ease',
         }}>
-          {PROJECTS.map((p, i) => <ProjectCard key={p.id} project={p} index={i} />)}
+          {PROJECTS.map((p, i) => <ProjectCard key={p.id} project={p} index={i} isMobile={isMobile} />)}
         </div>
       </div>
     </section>

@@ -47,9 +47,18 @@ function useTypewriter(texts: string[], speed = 55) {
   return displayed
 }
 
-function NeuralOrbit() {
+function NeuralOrbit({ screenType }: { screenType: 'mobile' | 'tablet' | 'desktop' }) {
+  const isDesktop = screenType === 'desktop'
+  const isTablet = screenType === 'tablet'
+
+  const style: React.CSSProperties = isDesktop
+    ? { position: 'absolute', right: '6%', top: '50%', transform: 'translateY(-50%)', width: 320, height: 320, opacity: 0.6 }
+    : isTablet
+    ? { position: 'absolute', right: '3%', top: '45%', transform: 'translateY(-50%)', width: 250, height: 250, opacity: 0.22, pointerEvents: 'none' }
+    : { position: 'absolute', right: '-40px', top: '12%', width: 200, height: 200, opacity: 0.18, pointerEvents: 'none' }
+
   return (
-    <div style={{ position: 'absolute', right: '8%', top: '50%', transform: 'translateY(-50%)', width: 320, height: 320, opacity: 0.6 }}>
+    <div style={style}>
       {/* Outer ring */}
       <div style={{
         position: 'absolute', inset: 0,
@@ -63,7 +72,7 @@ function NeuralOrbit() {
 
       {/* Mid ring */}
       <div style={{
-        position: 'absolute', inset: 40,
+        position: 'absolute', inset: 35,
         border: '1px solid rgba(139,92,246,0.2)',
         borderRadius: '50%',
         animation: 'counter-rotate 18s linear infinite',
@@ -74,7 +83,7 @@ function NeuralOrbit() {
 
       {/* Inner ring */}
       <div style={{
-        position: 'absolute', inset: 80,
+        position: 'absolute', inset: 70,
         border: '1px solid rgba(6,182,212,0.25)',
         borderRadius: '50%',
         animation: 'rotate-slow 12s linear infinite',
@@ -86,14 +95,14 @@ function NeuralOrbit() {
       <div style={{
         position: 'absolute', top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 48, height: 48,
+        width: 44, height: 44,
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(59,130,246,0.3) 0%, rgba(59,130,246,0.05) 100%)',
         border: '1px solid rgba(59,130,246,0.4)',
         boxShadow: '0 0 32px rgba(59,130,246,0.2)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'var(--signal-blue)', boxShadow: '0 0 16px rgba(59,130,246,0.8)' }} />
+        <div style={{ width: 14, height: 14, borderRadius: '50%', background: 'var(--signal-blue)', boxShadow: '0 0 16px rgba(59,130,246,0.8)' }} />
       </div>
     </div>
   )
@@ -102,19 +111,36 @@ function NeuralOrbit() {
 export default function Hero() {
   const tagline = useTypewriter(TAGLINES)
   const [visible, setVisible] = useState(false)
+  const [screenType, setScreenType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop')
+
+  useEffect(() => {
+    const updateScreen = () => {
+      const w = window.innerWidth
+      if (w <= 640) setScreenType('mobile')
+      else if (w <= 1024) setScreenType('tablet')
+      else setScreenType('desktop')
+    }
+    updateScreen()
+    window.addEventListener('resize', updateScreen)
+    return () => window.removeEventListener('resize', updateScreen)
+  }, [])
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 100)
     return () => clearTimeout(t)
   }, [])
 
+  const isMobile = screenType === 'mobile'
+  const isDesktop = screenType === 'desktop'
+
   return (
     <section id="hero" style={{
-      minHeight: '100vh',
+      minHeight: isDesktop ? '100vh' : 'auto',
       display: 'flex',
-      alignItems: 'center',
+      flexDirection: 'column',
+      justifyContent: 'center',
       position: 'relative',
-      padding: '0 6vw',
+      padding: isMobile ? '104px 5vw 60px' : screenType === 'tablet' ? '128px 6vw 80px' : '0 6vw',
       overflow: 'hidden',
     }}>
       {/* Ambient gradient */}
@@ -134,9 +160,9 @@ export default function Hero() {
       }} />
 
       {/* Content */}
-      <div style={{ position: 'relative', zIndex: 2, maxWidth: 720, opacity: visible ? 1 : 0, transition: 'opacity 0.8s ease' }}>
+      <div style={{ position: 'relative', zIndex: 2, maxWidth: 740, opacity: visible ? 1 : 0, transition: 'opacity 0.8s ease' }}>
         {/* Status bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isMobile ? 20 : 32 }}>
           <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--signal-green)', boxShadow: '0 0 8px rgba(16,185,129,0.8)', animation: 'pulse-dot 2s ease-in-out infinite' }} />
           <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--signal-green)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             {PROFILE.availability}
@@ -146,10 +172,10 @@ export default function Hero() {
         {/* Name */}
         <h1 style={{
           fontFamily: 'Outfit, sans-serif',
-          fontSize: 'clamp(52px, 8vw, 96px)',
+          fontSize: 'clamp(38px, 8vw, 92px)',
           fontWeight: 800,
           letterSpacing: '-0.03em',
-          lineHeight: 1.0,
+          lineHeight: 1.05,
           color: '#f8fafc',
           marginBottom: 8,
           animation: 'fadeInUp 0.7s ease forwards',
@@ -160,12 +186,12 @@ export default function Hero() {
         {/* Role */}
         <div style={{
           fontFamily: 'Outfit, sans-serif',
-          fontSize: 'clamp(18px, 2.5vw, 26px)',
+          fontSize: 'clamp(15px, 2.2vw, 24px)',
           fontWeight: 400,
-          color: '#475569',
+          color: '#64748b',
           letterSpacing: '0.04em',
           textTransform: 'uppercase',
-          marginBottom: 32,
+          marginBottom: isMobile ? 20 : 28,
           animation: 'fadeInUp 0.7s 0.1s ease both',
         }}>
           {PROFILE.role}
@@ -174,11 +200,12 @@ export default function Hero() {
         {/* Typewriter tagline */}
         <div style={{
           fontFamily: 'Outfit, sans-serif',
-          fontSize: 'clamp(22px, 3vw, 36px)',
+          fontSize: 'clamp(18px, 3.2vw, 34px)',
           fontWeight: 600,
           color: '#f1f5f9',
-          minHeight: 48,
-          marginBottom: 48,
+          minHeight: isMobile ? 54 : 44,
+          marginBottom: isMobile ? 24 : 36,
+          lineHeight: 1.25,
           animation: 'fadeInUp 0.7s 0.2s ease both',
         }}>
           <span style={{
@@ -194,31 +221,38 @@ export default function Hero() {
 
         {/* Bio */}
         <p style={{
-          fontSize: 16,
+          fontSize: isMobile ? 15 : 16,
           lineHeight: 1.7,
-          color: '#64748b',
-          maxWidth: 520,
-          marginBottom: 48,
+          color: '#94a3b8',
+          maxWidth: 540,
+          marginBottom: isMobile ? 32 : 44,
           animation: 'fadeInUp 0.7s 0.3s ease both',
         }}>
           {PROFILE.intro}
         </p>
 
         {/* CTAs */}
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', animation: 'fadeInUp 0.7s 0.4s ease both' }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: 12,
+          animation: 'fadeInUp 0.7s 0.4s ease both',
+        }}>
           <button
             onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
             style={{
               padding: '14px 28px',
               background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
               border: 'none',
-              borderRadius: 10,
+              borderRadius: 12,
               color: '#fff',
               fontSize: 14,
               fontWeight: 600,
               letterSpacing: '0.04em',
               transition: 'all 0.2s ease',
               boxShadow: '0 0 24px rgba(59,130,246,0.25)',
+              cursor: 'pointer',
+              textAlign: 'center',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)'
@@ -237,12 +271,14 @@ export default function Hero() {
               padding: '14px 28px',
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 10,
+              borderRadius: 12,
               color: '#94a3b8',
               fontSize: 14,
               fontWeight: 500,
               letterSpacing: '0.04em',
               transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              textAlign: 'center',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = 'rgba(59,130,246,0.4)'
@@ -262,13 +298,15 @@ export default function Hero() {
               padding: '14px 28px',
               background: 'transparent',
               border: '1px solid rgba(139,92,246,0.3)',
-              borderRadius: 10,
+              borderRadius: 12,
               color: '#a78bfa',
               fontSize: 14,
               fontWeight: 500,
               letterSpacing: '0.04em',
               textDecoration: 'none',
               transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              textAlign: 'center',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = 'rgba(167,139,250,0.65)'
@@ -282,46 +320,81 @@ export default function Hero() {
             Download Résumé ↓
           </a>
         </div>
+
+        {/* System stats on mobile & tablet (in-flow) */}
+        {!isDesktop && (
+          <div style={{
+            marginTop: isMobile ? 36 : 48,
+            display: 'grid',
+            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+            gap: 12,
+            animation: 'fadeIn 1s 0.6s ease both',
+          }}>
+            {SYSTEM_STATS.map((stat) => (
+              <div
+                key={stat.label}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                  padding: '12px 14px',
+                  background: 'rgba(255,255,255,0.025)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: 12,
+                }}
+              >
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#64748b', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{stat.label}</span>
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 700, color: stat.color, letterSpacing: '-0.02em' }}>
+                  {stat.value}<span style={{ fontSize: 11, fontWeight: 400, color: '#64748b' }}>{stat.unit}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Orbital visualization */}
-      <NeuralOrbit />
+      <NeuralOrbit screenType={screenType} />
 
-      {/* System stats strip */}
-      <div style={{
-        position: 'absolute',
-        bottom: 48,
-        left: '6vw',
-        display: 'flex',
-        gap: 40,
-        animation: 'fadeIn 1s 0.8s ease both',
-        opacity: visible ? 1 : 0,
-        transition: 'opacity 0.8s 0.8s ease',
-      }}>
-        {SYSTEM_STATS.map((stat) => (
-          <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{stat.label}</span>
-            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 22, fontWeight: 600, color: stat.color, letterSpacing: '-0.02em' }}>
-              {stat.value}<span style={{ fontSize: 12, fontWeight: 400, color: '#475569' }}>{stat.unit}</span>
-            </span>
-          </div>
-        ))}
-      </div>
+      {/* System stats strip on desktop (docked) */}
+      {isDesktop && (
+        <div style={{
+          position: 'absolute',
+          bottom: 48,
+          left: '6vw',
+          display: 'flex',
+          gap: 40,
+          animation: 'fadeIn 1s 0.8s ease both',
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.8s 0.8s ease',
+        }}>
+          {SYSTEM_STATS.map((stat) => (
+            <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{stat.label}</span>
+              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 22, fontWeight: 600, color: stat.color, letterSpacing: '-0.02em' }}>
+                {stat.value}<span style={{ fontSize: 12, fontWeight: 400, color: '#475569' }}>{stat.unit}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
-      {/* Scroll indicator */}
-      <div style={{
-        position: 'absolute',
-        bottom: 32,
-        right: '6vw',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 8,
-        opacity: 0.4,
-      }}>
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#64748b', letterSpacing: '0.15em', writingMode: 'vertical-rl' }}>SCROLL</span>
-        <div style={{ width: 1, height: 48, background: 'linear-gradient(to bottom, #64748b, transparent)' }} />
-      </div>
+      {/* Scroll indicator on desktop */}
+      {isDesktop && (
+        <div style={{
+          position: 'absolute',
+          bottom: 32,
+          right: '6vw',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 8,
+          opacity: 0.4,
+        }}>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: '#64748b', letterSpacing: '0.15em', writingMode: 'vertical-rl' }}>SCROLL</span>
+          <div style={{ width: 1, height: 48, background: 'linear-gradient(to bottom, #64748b, transparent)' }} />
+        </div>
+      )}
     </section>
   )
 }
